@@ -1,6 +1,9 @@
 //	This file returns a random wallpaper from the wallpaper repository folder as a variable "chosenFile"
 //	This is very rudimentary currently and semi-on purpose as I don't currently need any
 //	RNG protection on duplicate files, as that shouldn't realistically matter in the long term.
+//	Using FS, I simply point at the directory that holds the images and use math.random() to pull one from the stack
+
+// TODO: set a filter so this will only return photo filetypes compatible with discord, like .png and .jpg
 const fs = require('fs');
 const path = require('node:path');
 
