@@ -3,7 +3,8 @@
 //	RNG protection on duplicate files, as that shouldn't realistically matter in the long term.
 //	Using FS, I simply point at the directory that holds the images and use math.random() to pull one from the stack
 
-// TODO: set a filter so this will only return photo filetypes compatible with discord, like .png and .jpg
+//	TODO: set a filter so this will only return photo filetypes compatible with discord, like .png and .jpg
+//	This would also prevent the embeds from breaking due to incorrect file type. Current solution is only put .png's into the folder.
 const fs = require('fs');
 const path = require('node:path');
 
