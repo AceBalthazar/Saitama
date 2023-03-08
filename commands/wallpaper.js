@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder, AttachmentBuilder } = require('discord.js');
 const chosenFile = require('../functions/WallpaperFilePicker.js');
 
-
+//	TODO: Need to account for images that are larger than 8 MB, as the bot will be unable to embed them if they are
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('wallpaper')
