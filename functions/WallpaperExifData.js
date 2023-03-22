@@ -1,17 +1,11 @@
-const exif = require('exiftool');
-const fs = require('fs');
+// We're using the singleton here for convenience:
+const exiftool = require('exiftool-vendored').exiftool;
 
 
-fs.readFile('', function(err, data) {
-	if (err) {throw err;}
-	else {
-		exif.metadata(data, function(err, metadata) {
-			if (err) {
-				throw err;
-			}
-			else {
-				console.log(metadata);
-			}
-		});
-	}
-});
+function getImageMetadata(imagePath) {
+	return exiftool.read(imagePath);
+}
+
+module.exports = {
+	getImageMetadata,
+};
