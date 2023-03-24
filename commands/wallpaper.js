@@ -13,6 +13,12 @@ module.exports = {
 		.setDescription('responds with a random wallpaper from the database'),
 	async execute(interaction) {
 
+		//	Due to the runtime of the functions in this command, we need to defer the reply so the interaction token does not expire
+		//	500 miliseconds is enough time to defer the reply, as the time limit for editing a reply is much higher than the inital time to respond
+		const wait = require('node:timers/promises').setTimeout;
+		await interaction.deferReply();
+		await wait(500);
+
 
 		//	chosenFile function will be re-written in the future, may need to change code here to account for rewrite
 		const WallpaperFile = chosenFile.chosenFile();
@@ -53,6 +59,6 @@ module.exports = {
 			.setTimestamp();
 
 
-		await interaction.reply({ embeds: [WallpaperEmbed], files: [AttachmentFile] });
+		await interaction.editReply({ embeds: [WallpaperEmbed], files: [AttachmentFile] });
 	},
 };
