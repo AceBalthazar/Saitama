@@ -2,9 +2,9 @@
 //	embed builder and attachment builder are required for uploading images to discord within an embed
 //	ImageMetadata and AverageColor are used to flesh out the embed with more information related to the image, such as resolution and the average color
 const { SlashCommandBuilder, EmbedBuilder, AttachmentBuilder } = require('discord.js');
-const chosenFile = require('../functions/WallpaperFilePicker.js');
-const { getImageMetadata } = require('../functions/WallpaperExifData.js');
-const { getAverageColor } = require('../functions/WallpaperColorThief.js');
+const chosenFile = require('../functions/Command/WallpaperFilePicker.js');
+const { getImageMetadata } = require('../functions/Command/WallpaperExifData.js');
+const { getAverageColor } = require('../functions/Command/WallpaperColorThief.js');
 
 
 module.exports = {
