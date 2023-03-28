@@ -13,7 +13,7 @@ const fs = require('fs');
 const path = require('node:path');
 
 module.exports.chosenFile = function() {
-	const wallpaperPath = path.join(__dirname, '../wallpapers');
+	const wallpaperPath = path.join(__dirname, '../../wallpapers');
 	const wallpaperFiles = fs.readdirSync(wallpaperPath);
 	const chosenFile = wallpaperFiles[Math.floor(Math.random() * wallpaperFiles.length)];
 	return chosenFile;
