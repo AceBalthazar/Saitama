@@ -1,9 +1,13 @@
-//	TODO: Need to account for images that are larger than 8 MB, as the bot will be unable to embed them if they are
 //	embed builder and attachment builder are required for uploading images to discord within an embed
-//	ImageMetadata and AverageColor are used to flesh out the embed with more information related to the image, such as resolution and the average color
 const { SlashCommandBuilder, EmbedBuilder, AttachmentBuilder } = require('discord.js');
+
+//	pulling in all the functions we will use for this command
+//	consult the WallpaperFunctions file for more information on the individual functions
 const { wallpaperFilePicker, wallpaperFileSize, getImageMetadata, getAverageColor } = require('../functions/Command/WallpaperFunctions.js');
+
+//	color-convert is used to change the RGB array provided by getAverageColor into a hex code
 const convert = require('color-convert');
+
 
 module.exports = {
 	enabled: true,
@@ -20,24 +24,13 @@ module.exports = {
 		await interaction.deferReply();
 		await wait(500);
 
-
-		//	chosenFile function will be re-written in the future, may need to change code here to account for rewrite
 		const WallpaperFile = wallpaperFilePicker();
 		//	defines the entire filepath of the image, so i do not have to type out the whole path every time it is used
 		const filepath = `./wallpapers/${WallpaperFile}`;
 
 
-		//	grabs full EXIF Metadata of the selected image
-		//	consult the exiftool-vendored and exiftool sites for more info related to available metadata: https://github.com/ikmolbo/exiftool-vendored
 		const metadata = await getImageMetadata(filepath);
-		//	logging to console kept in for testing, commented out for production
-		//	console.log(metadata);
-
-
-		//	grabs average color of the selected image
-		//	consult Lokesh Dhakar's site for more information about color thief:  https://lokeshdhakar.com/projects/color-thief/
 		const averageColor = await getAverageColor(filepath);
-		//	console.log(averageColor);
 		const hexColor = convert.rgb.hex(averageColor);
 		console.log(hexColor);
 
@@ -47,8 +40,6 @@ module.exports = {
 		//	AND I'M NOT BOTHERING TO PROPERLY SANITIZE FOR SPACES IN FILE NAMES RIGHT NOW. THEY GET RENAMED
 		const EditedFileName = `UploadedFile.${metadata.FileTypeExtension}`;
 		const AttachmentFile = new AttachmentBuilder(filepath).setName(EditedFileName);
-		//	console.log(AttachmentFile);
-
 		const imageSize = wallpaperFileSize(filepath);
 
 		//	consult discord.js guide docs for further information related to embed builders: https://discordjs.guide/popular-topics/embeds.html
@@ -62,6 +53,8 @@ module.exports = {
 			.setImage(`attachment://${EditedFileName}`)
 			.setTimestamp();
 
+
+		//	temporarily creating a second embed for when a file is too big to upload. This will be removed when the images are hosted on a web server
 		const wallpaperTooBig = new EmbedBuilder()
 			.setTitle(WallpaperFile)
 			.setDescription('Due to the size of the image, it has not been uploaded to discord within this embed. All metadata for the image is still accessible at the site:')
@@ -75,7 +68,7 @@ module.exports = {
 			)
 			.setTimestamp();
 
-
+		//	8MB is max file size for uploads currently, so anything larger than that wil not embed
 		if (imageSize > 8) {
 			await interaction.editReply({ embeds: [wallpaperTooBig] });
 		}
