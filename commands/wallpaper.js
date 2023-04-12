@@ -2,12 +2,13 @@
 //	embed builder and attachment builder are required for uploading images to discord within an embed
 //	ImageMetadata and AverageColor are used to flesh out the embed with more information related to the image, such as resolution and the average color
 const { SlashCommandBuilder, EmbedBuilder, AttachmentBuilder } = require('discord.js');
-const chosenFile = require('../functions/Command/WallpaperFilePicker.js');
-const { getImageMetadata } = require('../functions/Command/WallpaperExifData.js');
-const { getAverageColor } = require('../functions/Command/WallpaperColorThief.js');
-
+const { wallpaperFilePicker, wallpaperFileSize, getImageMetadata, getAverageColor } = require('../functions/Command/WallpaperFunctions.js');
+const convert = require('color-convert');
 
 module.exports = {
+	enabled: true,
+	guildOnly: false,
+	category: 'Miscellaneous',
 	data: new SlashCommandBuilder()
 		.setName('wallpaper')
 		.setDescription('responds with a random wallpaper from the database'),
@@ -21,7 +22,7 @@ module.exports = {
 
 
 		//	chosenFile function will be re-written in the future, may need to change code here to account for rewrite
-		const WallpaperFile = chosenFile.chosenFile();
+		const WallpaperFile = wallpaperFilePicker();
 		//	defines the entire filepath of the image, so i do not have to type out the whole path every time it is used
 		const filepath = `./wallpapers/${WallpaperFile}`;
 
@@ -37,7 +38,8 @@ module.exports = {
 		//	consult Lokesh Dhakar's site for more information about color thief:  https://lokeshdhakar.com/projects/color-thief/
 		const averageColor = await getAverageColor(filepath);
 		//	console.log(averageColor);
-
+		const hexColor = convert.rgb.hex(averageColor);
+		console.log(hexColor);
 
 		//	attachmentBuilder uploads the file to be used, instead of a URL
 		//	we set the name to a generic "UploadedFile" to account for any photos that may have spaces in the original name
@@ -47,18 +49,38 @@ module.exports = {
 		const AttachmentFile = new AttachmentBuilder(filepath).setName(EditedFileName);
 		//	console.log(AttachmentFile);
 
+		const imageSize = wallpaperFileSize(filepath);
 
 		//	consult discord.js guide docs for further information related to embed builders: https://discordjs.guide/popular-topics/embeds.html
 		const WallpaperEmbed = new EmbedBuilder()
 			.setTitle(WallpaperFile)
 			.setColor(averageColor)
 			.addFields(
-				{ name: 'Resolution', value: metadata.ImageSize },
+				{ name: 'Resolution', value: metadata.ImageSize, inline: true },
+				{ name: 'Average color', value: `#${hexColor}`, inline: true },
 			)
 			.setImage(`attachment://${EditedFileName}`)
 			.setTimestamp();
 
+		const wallpaperTooBig = new EmbedBuilder()
+			.setTitle(WallpaperFile)
+			.setDescription('Due to the size of the image, it has not been uploaded to discord within this embed. All metadata for the image is still accessible at the site:')
+			.setColor(averageColor)
+			.addFields(
+				{ name: 'The Problem:', value: `Discord limits the file size a bot can upload. It is the same as a free user, so 8 MB at max. The image the bot returned was ${imageSize}MB in size.` },
+			)
+			.addFields(
+				{ name: 'Resolution', value: metadata.ImageSize, inline: true },
+				{ name: 'Average color', value: `#${hexColor}`, inline: true },
+			)
+			.setTimestamp();
 
-		await interaction.editReply({ embeds: [WallpaperEmbed], files: [AttachmentFile] });
+
+		if (imageSize > 8) {
+			await interaction.editReply({ embeds: [wallpaperTooBig] });
+		}
+		else {
+			await interaction.editReply({ embeds: [WallpaperEmbed], files: [AttachmentFile] });
+		}
 	},
 };
