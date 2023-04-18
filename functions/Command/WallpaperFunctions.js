@@ -5,6 +5,9 @@ const path = require('node:path');
 //	exiftool gives us the metadata for the image
 const exiftool = require('exiftool-vendored').exiftool;
 const ColorThief = require('colorthief');
+const sagiri = require('sagiri');
+const sagiriClient = sagiri(process.env.SauceNaoAPI);
+
 
 function wallpaperFilePicker() {
 	const wallpaperPath = path.join(__dirname, '../../wallpapers');
@@ -39,7 +42,14 @@ function getColorPalette(filepath) {
 	return ColorThief.getPalette(filepath, 10);
 }
 
+function wallpaperSource(filepath) {
+	return sagiriClient(filepath).then(res => {
+		const result = res[0];
+		return result;
+	});
+}
+
 //	exporting all the functions so we can use them as needed
 module.exports = {
-	wallpaperFilePicker, wallpaperFileSize, getImageMetadata, getAverageColor, getColorPalette,
+	wallpaperFilePicker, wallpaperFileSize, getImageMetadata, getAverageColor, getColorPalette, wallpaperSource,
 };

@@ -3,7 +3,7 @@ const { SlashCommandBuilder, EmbedBuilder, AttachmentBuilder } = require('discor
 
 //	pulling in all the functions we will use for this command
 //	consult the WallpaperFunctions file for more information on the individual functions
-const { wallpaperFilePicker, wallpaperFileSize, getImageMetadata, getAverageColor } = require('../functions/Command/WallpaperFunctions.js');
+const { wallpaperFilePicker, wallpaperFileSize, getImageMetadata, getAverageColor, wallpaperSource } = require('../functions/Command/WallpaperFunctions.js');
 
 //	color-convert is used to change the RGB array provided by getAverageColor into a hex code
 const convert = require('color-convert');
@@ -30,9 +30,14 @@ module.exports = {
 
 
 		const metadata = await getImageMetadata(filepath);
+
 		const averageColor = await getAverageColor(filepath);
 		const hexColor = convert.rgb.hex(averageColor);
 		console.log(hexColor);
+
+		const result = await wallpaperSource(filepath);
+		console.log(result);
+
 
 		//	attachmentBuilder uploads the file to be used, instead of a URL
 		//	we set the name to a generic "UploadedFile" to account for any photos that may have spaces in the original name
@@ -47,6 +52,9 @@ module.exports = {
 			.setTitle(WallpaperFile)
 			.setColor(averageColor)
 			.addFields(
+				{ name: 'Source', value: result.raw.data.source ?? result.url, inline: false },
+				{ name: 'Source Accuracy', value: `${result.raw.data.similarity ?? result.similarity}%`, inline: true },
+				//	{ name: '\u200B', value: '\u200B', inline: true },
 				{ name: 'Resolution', value: metadata.ImageSize, inline: true },
 				{ name: 'Average color', value: `#${hexColor}`, inline: true },
 			)
