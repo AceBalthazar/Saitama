@@ -42,6 +42,8 @@ function getColorPalette(filepath) {
 	return ColorThief.getPalette(filepath, 10);
 }
 
+
+//	This uses Sagiri and Saucenao to return the source of the image
 function wallpaperSource(filepath) {
 	return sagiriClient(filepath).then(res => {
 		const result = res[0];

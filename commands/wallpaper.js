@@ -10,9 +10,6 @@ const convert = require('color-convert');
 
 
 module.exports = {
-	enabled: true,
-	guildOnly: false,
-	category: 'Miscellaneous',
 	data: new SlashCommandBuilder()
 		.setName('wallpaper')
 		.setDescription('responds with a random wallpaper from the database'),
