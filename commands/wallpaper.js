@@ -3,13 +3,20 @@ const { SlashCommandBuilder, EmbedBuilder, AttachmentBuilder } = require('discor
 
 //	pulling in all the functions we will use for this command
 //	consult the WallpaperFunctions file for more information on the individual functions
-const { wallpaperFilePicker, wallpaperFileSize, getImageMetadata, getAverageColor, wallpaperSource } = require('../functions/Command/WallpaperFunctions.js');
+const { wallpaperFilePicker, wallpaperFileSize, getImageMetadata, getAverageColor, wallpaperSource, wallpaperTotal } = require('../functions/Command/WallpaperFunctions.js');
 
 //	color-convert is used to change the RGB array provided by getAverageColor into a hex code
 const convert = require('color-convert');
 
 
 module.exports = {
+	config: {
+		enabled: true,
+		guildOnly: false,
+		permlevel: 'User',
+		category: 'Miscellaneous',
+		usage: '/wallpaper [Tags] [Artist] (future nonsense)',
+	},
 	data: new SlashCommandBuilder()
 		.setName('wallpaper')
 		.setDescription('responds with a random wallpaper from the database'),
@@ -20,6 +27,10 @@ module.exports = {
 		const wait = require('node:timers/promises').setTimeout;
 		await interaction.deferReply();
 		await wait(500);
+
+
+		const TotalPapers = wallpaperTotal();
+		console.log(`TOTAL NUMBER ${TotalPapers}`);
 
 		const WallpaperFile = wallpaperFilePicker();
 		//	defines the entire filepath of the image, so i do not have to type out the whole path every time it is used
@@ -46,14 +57,15 @@ module.exports = {
 
 		//	consult discord.js guide docs for further information related to embed builders: https://discordjs.guide/popular-topics/embeds.html
 		const WallpaperEmbed = new EmbedBuilder()
-			.setTitle(WallpaperFile)
+			.setTitle(result.raw.data.title ?? WallpaperFile)
+			.setDescription(`return this from a possible ${TotalPapers} wallpapers..`)
 			.setColor(averageColor)
 			.addFields(
 				{ name: 'Source', value: result.raw.data.source ?? result.url, inline: false },
-				{ name: 'Source Accuracy', value: `${result.raw.data.similarity ?? result.similarity}%`, inline: true },
-				//	{ name: '\u200B', value: '\u200B', inline: true },
-				{ name: 'Resolution', value: metadata.ImageSize, inline: true },
-				{ name: 'Average color', value: `#${hexColor}`, inline: true },
+				{ name: 'Source Accuracy:', value: `${result.raw.data.similarity ?? result.similarity}%`, inline: true },
+				{ name: 'Creator:', value: result.authorName ?? result.raw.data.creator, inline: true },
+				{ name: 'Resolution:', value: metadata.ImageSize, inline: true },
+				{ name: 'Average color:', value: `#${hexColor}`, inline: true },
 			)
 			.setImage(`attachment://${EditedFileName}`)
 			.setTimestamp();

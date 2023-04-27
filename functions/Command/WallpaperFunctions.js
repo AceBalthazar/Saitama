@@ -8,7 +8,12 @@ const ColorThief = require('colorthief');
 const sagiri = require('sagiri');
 const sagiriClient = sagiri(process.env.SauceNaoAPI);
 
-
+function wallpaperTotal() {
+	const wallpaperPath = path.join(__dirname, '../../wallpapers');
+	const wallpaperFiles = fs.readdirSync(wallpaperPath);
+	const TotalNumber = wallpaperFiles.length;
+	return TotalNumber;
+}
 function wallpaperFilePicker() {
 	const wallpaperPath = path.join(__dirname, '../../wallpapers');
 	const wallpaperFiles = fs.readdirSync(wallpaperPath);
@@ -53,5 +58,5 @@ function wallpaperSource(filepath) {
 
 //	exporting all the functions so we can use them as needed
 module.exports = {
-	wallpaperFilePicker, wallpaperFileSize, getImageMetadata, getAverageColor, getColorPalette, wallpaperSource,
+	wallpaperFilePicker, wallpaperFileSize, getImageMetadata, getAverageColor, getColorPalette, wallpaperSource, wallpaperTotal,
 };
